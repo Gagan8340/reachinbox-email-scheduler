@@ -1,0 +1,35 @@
+{
+  "name": "reachinbox-backend",
+  "version": "1.0.0",
+  "description": "Full-stack Email Job Scheduler for ReachInbox",
+  "main": "src/server.ts",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "dev": "ts-node src/server.ts",
+    "worker": "ts-node src/workers/emailWorker.ts"
+  },
+  "dependencies": {
+    "@bull-board/api": "^6.7.1",
+    "@bull-board/express": "^6.7.1",
+    "@bull-board/ui": "^6.7.1",
+    "@elastic/elasticsearch": "^8.17.0",
+    "@prisma/client": "^6.4.1",
+    "@slack/web-api": "^7.8.0",
+    "bullmq": "^5.41.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ioredis": "^5.6.0",
+    "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.10",
+    "@types/nodemailer": "^6.4.17",
+    "prisma": "^6.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}

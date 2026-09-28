@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum CampaignStatus {
+  SCHEDULED
+  PROCESSING
+  SENT
+  FAILED
+  DELAYED_RATE_LIMIT
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  name         String?
+  avatar       String?
+  googleId     String         @unique
+  slackToken   String?
+  slackChannel String?
+  senders      EmailSender[]
+  campaigns    EmailCampaign[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model EmailSender {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  smtpHost    String           @default("smtp.ethereal.email")
+  smtpPort    Int              @default(587)
+  smtpUser    String
+  smtpPass    String
+  senderEmail String           @unique
+  hourlyLimit Int              @default(200)
+  emails      ScheduledEmail[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model EmailCampaign {
+  id            String           @id @default(uuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  subject       String
+  body          String
+  delayPerEmail Int              @default(2)
+  emails        ScheduledEmail[]
+  createdAt     DateTime         @default(now())
+}
+
+model ScheduledEmail {
+  id             String         @id @default(uuid())
+  campaignId     String
+  campaign       EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         EmailSender    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  recipientEmail String
+  subject        String
+  body           String
+  scheduledAt    DateTime
+  sentAt         DateTime?
+  status         CampaignStatus @default(SCHEDULED)
+  bullJobId      String?        @unique
+  attempts       Int            @default(0)
+  lastError      String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([recipientEmail])
+  @@index([status, scheduledAt])
+}
